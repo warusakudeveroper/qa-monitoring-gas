@@ -27,10 +27,7 @@ function setupScriptProperties() {
     'PROCESSED_QUESTIONS': '[]',
 
     // 処理済み回答番号を記録（初期値は空）
-    'PROCESSED_ANSWERS': '[]',
-
-    // 前回のデータハッシュ（変更検知用）
-    'LAST_DATA_HASH': ''
+    'PROCESSED_ANSWERS': '[]'
   });
 
   console.log('スクリプトプロパティを設定しました');
