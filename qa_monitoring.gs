@@ -235,7 +235,7 @@ function detectChanges(oldData, newData) {
     }
   }
 
-  // 変更されたエントリをチェック（B列からJ列）
+  // 変更されたエントリをチェック（C列からJ列）- B列（起案日）は除外
   for (let i = 1; i < newData.length; i++) {
     const newRow = newData[i];
     const number = String(newRow[0]);
@@ -245,8 +245,8 @@ function detectChanges(oldData, newData) {
       for (let j = 1; j < oldData.length; j++) {
         const oldRow = oldData[j];
         if (String(oldRow[0]) === number) {
-          // B列からJ列を比較
-          for (let col = 1; col <= 9; col++) {
+          // C列からJ列を比較（B列のindex=1はスキップ）
+          for (let col = 2; col <= 9; col++) {
             const oldValue = oldRow[col];
             const newValue = newRow[col];
 
