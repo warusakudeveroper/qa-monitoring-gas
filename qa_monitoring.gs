@@ -245,15 +245,19 @@ function detectChanges(oldData, newData) {
         if (String(oldRow[0]) === number) {
           // B列からJ列を比較
           for (let col = 1; col <= 9; col++) {
-            const oldValue = String(oldRow[col] || '');
-            const newValue = String(newRow[col] || '');
+            const oldValue = oldRow[col];
+            const newValue = newRow[col];
 
-            if (oldValue !== newValue && oldValue !== '') {
+            // 値の比較 - 日付型の場合は内容で比較
+            if (!areValuesEqual(oldValue, newValue) && oldValue !== '' && oldValue !== null && oldValue !== undefined) {
               const columnName = getColumnName(col);
+              const oldDisplay = formatValueForDisplay(oldValue);
+              const newDisplay = formatValueForDisplay(newValue);
+
               changes.push({
                 type: '変更',
                 number: number,
-                content: `番号 ${number} の${columnName}が変更されました: "${oldValue}" → "${newValue}"`
+                content: `番号 ${number} の${columnName}が変更されました: "${oldDisplay}" → "${newDisplay}"`
               });
             }
           }
@@ -264,6 +268,73 @@ function detectChanges(oldData, newData) {
   }
 
   return changes;
+}
+
+/**
+ * 値が等しいかチェック（日付型の特別処理を含む）
+ */
+function areValuesEqual(value1, value2) {
+  // 両方がnull/undefined/空文字の場合は等しいとみなす
+  if ((!value1 && !value2) || (value1 === '' && value2 === '')) {
+    return true;
+  }
+
+  // 片方だけがnull/undefined/空文字の場合は等しくない
+  if (!value1 || !value2 || value1 === '' || value2 === '') {
+    return false;
+  }
+
+  // 両方が日付型の場合は、時刻で比較
+  if (value1 instanceof Date && value2 instanceof Date) {
+    return value1.getTime() === value2.getTime();
+  }
+
+  // 片方が日付型、もう片方が文字列の場合
+  if ((value1 instanceof Date && typeof value2 === 'string') ||
+      (value2 instanceof Date && typeof value1 === 'string')) {
+    try {
+      const date1 = value1 instanceof Date ? value1 : new Date(value1);
+      const date2 = value2 instanceof Date ? value2 : new Date(value2);
+
+      // 両方が有効な日付の場合は時刻で比較
+      if (!isNaN(date1.getTime()) && !isNaN(date2.getTime())) {
+        return date1.getTime() === date2.getTime();
+      }
+    } catch (e) {
+      // 日付変換に失敗した場合は文字列として比較
+    }
+  }
+
+  // その他の場合は文字列として比較
+  return String(value1) === String(value2);
+}
+
+/**
+ * 値を表示用にフォーマット
+ */
+function formatValueForDisplay(value) {
+  if (value === null || value === undefined || value === '') {
+    return '';
+  }
+
+  // 日付型の場合は読みやすい形式に変換
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, 'JST', 'yyyy/MM/dd HH:mm:ss');
+  }
+
+  // 日付っぽい文字列の場合も整形を試みる
+  if (typeof value === 'string' && value.match(/\d{4}.*\d{2}.*\d{2}/)) {
+    try {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return Utilities.formatDate(date, 'JST', 'yyyy/MM/dd HH:mm:ss');
+      }
+    } catch (e) {
+      // 変換失敗時はそのまま返す
+    }
+  }
+
+  return String(value);
 }
 
 /**
