@@ -76,12 +76,13 @@ function checkNewQuestions(data) {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const questionNumber = String(row[0]); // A列: 番号
-    const sender = String(row[1]); // B列: 発信者
+    const issueDate = row[1]; // B列: 起案日
+    const sender = String(row[2]); // C列: 発信者
     const recipient = String(row[7]); // H列: 宛先
     const content = String(row[6]); // G列: 質疑内容
 
     // A列からH列まで全て埋まっているかチェック
-    if (questionNumber && sender && row[2] && row[3] && row[4] && row[5] && content && recipient) {
+    if (questionNumber && issueDate && sender && row[3] && row[4] && row[5] && content && recipient) {
       // まだ処理していない質疑の場合
       if (!processedQuestions.includes(questionNumber)) {
         newQuestions.push({
@@ -119,7 +120,8 @@ function checkNewAnswers(data) {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const questionNumber = String(row[0]); // A列: 番号
-    const originalSender = String(row[1]); // B列: 元の発信者
+    const issueDate = row[1]; // B列: 起案日
+    const originalSender = String(row[2]); // C列: 元の発信者
     const answerer = String(row[7]); // H列: 回答者（元の宛先）
     const questionContent = String(row[6]); // G列: 質疑内容
     const answerDate = row[8]; // I列: 回答日
@@ -342,8 +344,8 @@ function formatValueForDisplay(value) {
  */
 function getColumnName(colIndex) {
   const columnNames = {
-    1: '発信者(B列)',
-    2: '発信者部署(C列)',
+    1: '起案日(B列)',
+    2: '発信者(C列)',
     3: 'フェーズ(D列)',
     4: 'カテゴリ(E列)',
     5: '参照資料(F列)',

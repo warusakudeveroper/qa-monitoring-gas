@@ -48,8 +48,8 @@ setupTimeTrigger()
 
 The monitored spreadsheet expects these columns:
 - **A**: 番号 (Number) - Unique identifier
-- **B**: 発信者 (Sender)
-- **C**: 発信者部署 (Sender Department)
+- **B**: 起案日 (Issue Date) - Date when the question was raised
+- **C**: 発信者 (Sender)
 - **D**: フェーズ (Phase)
 - **E**: カテゴリ (Category)
 - **F**: 参照資料 (Reference Materials)
@@ -98,6 +98,7 @@ The system includes comprehensive error handling:
 ## Development Notes
 
 - This is a **container-bound script** - must be developed within the Google Sheets script editor
-- Changes to column structure require updating the array indices in `checkNewQuestions()` and `checkNewAnswers()`
+- Changes to column structure require updating the array indices in `checkNewQuestions()`, `checkNewAnswers()`, and `getColumnName()`
+- Column B contains the issue date (起案日), Column C contains the sender (発信者)
 - Discord messages have 2000 character limit - the script handles automatic message splitting
 - All datetime handling uses JST (Japan Standard Time) timezone
