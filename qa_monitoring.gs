@@ -250,8 +250,8 @@ function detectChanges(oldData, newData) {
             const oldValue = oldRow[col];
             const newValue = newRow[col];
 
-            // 値の比較 - 日付型の場合は内容で比較
-            if (!areValuesEqual(oldValue, newValue) && oldValue !== '' && oldValue !== null && oldValue !== undefined) {
+            // 値の比較 - 日付型の場合は内容で比較、colIndexを渡す
+            if (!areValuesEqual(oldValue, newValue, col) && oldValue !== '' && oldValue !== null && oldValue !== undefined) {
               const columnName = getColumnName(col);
               const oldDisplay = formatValueForDisplay(oldValue);
               const newDisplay = formatValueForDisplay(newValue);
@@ -274,8 +274,11 @@ function detectChanges(oldData, newData) {
 
 /**
  * 値が等しいかチェック（日付型の特別処理を含む）
+ * @param {*} value1 比較値1
+ * @param {*} value2 比較値2
+ * @param {number} colIndex 列インデックス（日付列の特別処理用）
  */
-function areValuesEqual(value1, value2) {
+function areValuesEqual(value1, value2, colIndex) {
   // 両方がnull/undefined/空文字の場合は等しいとみなす
   if ((!value1 && !value2) || (value1 === '' && value2 === '')) {
     return true;
@@ -284,6 +287,24 @@ function areValuesEqual(value1, value2) {
   // 片方だけがnull/undefined/空文字の場合は等しくない
   if (!value1 || !value2 || value1 === '' || value2 === '') {
     return false;
+  }
+
+  // I列（回答日、colIndex=8）の場合は日付の日付部分のみ比較
+  if (colIndex === 8) {
+    try {
+      const date1 = value1 instanceof Date ? value1 : new Date(value1);
+      const date2 = value2 instanceof Date ? value2 : new Date(value2);
+
+      // 両方が有効な日付の場合
+      if (!isNaN(date1.getTime()) && !isNaN(date2.getTime())) {
+        // 日付部分のみ比較（年月日が同じかチェック）
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+      }
+    } catch (e) {
+      // 日付変換に失敗した場合は文字列として比較
+    }
   }
 
   // 両方が日付型の場合は、時刻で比較
